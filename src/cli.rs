@@ -3,7 +3,7 @@
 pub enum Command
 {
     Help,
-    Encode(bool, String, String),
+    Encode(bool, String, String, String),
     Decode(String)
 }
 
@@ -33,11 +33,17 @@ pub fn start() -> Result<Command, String>
                 if message.is_none() {
                     Result::Err(String::from("Missing required argument for message."))
                 } else {
-                    let file_path = args.get(if repeat {4} else {3});
+                    let mut index = if repeat {4} else {3};
+                    let file_path = args.get(index);
                     if file_path.is_none() {
-                        Result::Err(String::from("Missing required argument for file path."))
+                        Result::Err(String::from("Missing required argument for input file path."))
                     } else {
-                        Result::Ok(Command::Encode(repeat, message.unwrap().to_owned(), file_path.unwrap().to_owned()))
+                        index += 1;
+                        if let Some(output_path) = args.get(index) {
+                            Result::Ok(Command::Encode(repeat, message.unwrap().to_owned(), file_path.unwrap().to_owned(), output_path.to_owned()))
+                        } else {
+                            Result::Err(String::from("Missing required argument for output file."))
+                        }
                     }
                 }
             }
@@ -62,9 +68,9 @@ pub fn print_help()
 {
     println!("\
 Available commands:\n\
-\t help                                          Shows the help message.\n\
-\t encode [-r | --repeat] <message> <file-path>  Encodes the given message into the image.\n\
-\t decode <file-path>                            Decodes a message from the image.\n\
+\t help                                                                   Shows the help message.\n\
+\t encode [-r | --repeat] <message> <input-file-path> <output-file-path>  Encodes the given message into the image.\n\
+\t decode <file-path>                                                     Decodes a message from the image.\n\
 \n\
 Supported image formats: .png");
 }

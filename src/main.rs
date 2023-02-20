@@ -27,16 +27,17 @@ fn run_command(cmd: &cli::Command) {
             }
         },
 
-        Command::Encode(repeat, message, file_path) => {
+        Command::Encode(repeat, message, input_path, output_path) => {
             
             if message.len() == 0 {
                 println!("Message cannot be empty.");
                 return;
             }
             
-            let path = Path::new(file_path);
-            match check_image_path(path) {
-                Ok(_) => engine::encoding::run(*repeat, message, path),
+            let input_path = Path::new(input_path);
+            let output_path = Path::new(output_path);
+            match check_image_path(input_path) {
+                Ok(_) => engine::encoding::run(*repeat, message, input_path, output_path),
                 Err(msg) => println!("{}", msg),
             }
         }

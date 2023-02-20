@@ -1,34 +1,41 @@
+use std::io::BufWriter;
 use std::path::Path;
 use std::fs::File;
 
-pub fn run(repeat: bool, message: &String, file_path: &Path) {
-    println!("TODO : encoding image at {:?} with message (repeat={}) '{}'", file_path, repeat, message);
+use png::Encoder;
 
-    let file = File::open(file_path).expect("Failed openning file.");
-    let decoder = png::Decoder::new(file);
-    let mut reader = decoder.read_info().expect("Failed getting decoder reader.");
+pub fn run(repeat: bool, message: &String, input_path: &Path, output_path: &Path) {
+    println!("TODO : encoding image at {:?} with message (repeat={}) '{}'", input_path, repeat, message);
 
-    let row = match reader.next_row() {
-        Ok(r) => r,
-        Err(e) => {
-            println!("{}", e);
-            return;
-        }
-    };
+    let (mut pixels, reader) = super::decoding::extract_data(input_path);
 
-    match row {
-        None => {},
-        Some(r) => {
-            const MAX_INDEX: i32 = 16;
-            let mut index = 0;
-            for b in r.data() {
-                println!("{:#04x}", b);
-                index += 1;
-                if index >= MAX_INDEX {
-                    break;
-                }
-            }
-        }
+    let message_bytes = message.as_bytes();
+    let message_length = message_bytes.len();
+
+    for (i, p) in pixels.iter_mut().enumerate() {
+        *p |= (message_bytes[i % message_length] << 7) >> 7;
     }
 
+
+    let output_file = File::create(output_path).unwrap();
+    let w = &mut BufWriter::new(output_file);
+
+    let info = reader.info();
+    let (width, height) = info.size();
+    let mut encoder = Encoder::new(w, width, height);
+    encoder.set_color(info.color_type);
+    encoder.set_depth(info.bit_depth);
+
+    if let Some(source_gamma) = info.source_gamma {
+        encoder.set_source_gamma(source_gamma);
+    }
+
+    if let Some(source_chromaticities) = info.source_chromaticities {
+        encoder.set_source_chromaticities(source_chromaticities);
+    }
+
+    let mut writer = encoder.write_header().unwrap();
+    writer.write_image_data(&pixels).unwrap();
+
+    println!("Done.");
 }
