@@ -11,7 +11,6 @@ fn main() {
         Ok(cmd) => run_command(&cmd),
         Err(msg) => {
             println!("{}", msg);
-            return;
         }
     }
 }
@@ -29,7 +28,7 @@ fn run_command(cmd: &cli::Command) {
 
         Command::Encode(repeat, message, input_path, output_path) => {
             
-            if message.len() == 0 {
+            if message.is_empty() {
                 println!("Message cannot be empty.");
                 return;
             }
