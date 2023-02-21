@@ -1,4 +1,4 @@
-# img-stenographer
+# Image Stenographer
 Small cli tool to encode or decode a message into/from an image.
 
 <pre>
