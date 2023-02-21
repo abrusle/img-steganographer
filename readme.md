@@ -1,6 +1,15 @@
 # img-stenographer
 Small cli tool to encode or decode a message into/from an image.
 
+<pre>
+Available commands:
+   help                                                                   Shows the help message.
+   encode [-r | --repeat] &lt;message&gt; &lt;input-file-path&gt; &lt;output-file-path&gt;  Encodes the given message into the image.
+   decode &lt;file-path&gt;                                                     Decodes a message from the image.
+
+Supported image formats: .png
+</pre>
+
 ---
 
 ### Test Assets Attributions
